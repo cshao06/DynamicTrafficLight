@@ -1,0 +1,5 @@
+<!-- <inductionLoop id="0" lane="4i_0" pos="450" freq="30" file="cross.out" friendlyPos="x"/> -->
+<additional>
+<!-- <laneAreadDetector id="TLS0_my_program_E2CollectorOn_2i_0" lane="4i_0" pos="450" length="100" freq="30" file="cross.out" /> -->
+    <laneAreaDetector file="cross.out" freq="300" friendlyPos="x" id="TLS0_my_program_E2CollectorOn_2i_0" lane="4i_0" length="100" pos="395.15"/>
+</additional>

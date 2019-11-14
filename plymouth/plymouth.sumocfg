@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/sumoConfiguration.xsd">
+
+    <input>
+        <net-file value="plymouth.net.xml"/>
+        <route-files value="plymouth.rou.xml"/>
+        <additional-files value="plymouth.det.xml"/>
+            <!-- <additional-files value="cross.tls.xml"/> -->
+            <gui-settings-file value="plymouth.gui.xml"/>
+    </input>
+
+    <time>
+        <begin value="0"/>
+    </time>
+
+    <report>
+        <verbose value="true"/>
+        <no-step-log value="true"/>
+    </report>
+
+</configuration>

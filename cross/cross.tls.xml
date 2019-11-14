@@ -1,0 +1,30 @@
+<additional>
+  <!-- <tlLogic id="0" programID="my_program" offset="0" type="actuated"> -->
+  <!--   <param key="max-gap" value="3.0"/> -->
+  <!--   <param key="detector-gap" value="2.0"/> -->
+  <!--   <param key="show-detectors" value="true"/> -->
+  <!--   <param key="file" value="NULL"/> -->
+  <!--   <param key="freq" value="300"/> -->
+
+  <tlLogic id="0" programID="my_program" offset="0" type="delay_based">
+    <param key="detectorRange" value="100" />
+    <param key="minTimeLoss" value="1" />
+    <param key="file" value="NULL"/>
+    <param key="freq" value="300"/>
+    <param key="show-detectors" value="true"/>
+
+    <phase duration="31" minDur="5" maxDur="45" state="GrGr"/>
+    <phase duration="6"  state="yryr"/>
+    <phase duration="31" minDur="5" maxDur="45" state="rGrG"/>
+    <phase duration="6"  state="ryry"/>
+    <!-- <phase duration="31" minDur="5" maxDur="45" state="GGggrrrrGGggrrrr"/> -->
+    <!-- <phase duration="31" state="GGggrrrrGGggrrrr"/> -->
+    <!-- <phase duration="5"  state="yyggrrrryyggrrrr"/> -->
+    <!-- <phase duration="6"  state="rrGGrrrrrrGGrrrr"/> -->
+    <!-- <phase duration="5"  state="rryyrrrrrryyrrrr"/> -->
+    <!-- <phase duration="31" state="rrrrGGggrrrrGGgg"/> -->
+    <!-- <phase duration="5"  state="rrrryyggrrrryygg"/> -->
+    <!-- <phase duration="6"  state="rrrrrrGGrrrrrrGG"/> -->
+    <!-- <phase duration="5"  state="rrrrrryyrrrrrryy"/> -->
+  </tlLogic>
+</additional>
