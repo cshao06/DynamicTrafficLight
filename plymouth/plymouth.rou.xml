@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- generated on 2019-11-15 11:34:51.435407 by $Id$
+  options: -n plymouth.net.xml -o plymouth.rou.xml -e 30 <doubleminus>binomial 3 -p 0.8
+-->
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+    <trip id="0" depart="1.00" from="-8725031#1" to="441142718#1"/>
+    <trip id="1" depart="2.00" from="222786842#0" to="441142718#1"/>
+    <trip id="2" depart="2.00" from="-441142718#1" to="-222786842#0"/>
+    <trip id="3" depart="3.00" from="-8725031#1" to="-222786838#0"/>
+    <trip id="4" depart="4.00" from="222786838#0" to="-222786842#0"/>
+    <trip id="5" depart="4.00" from="222786838#0" to="-222786842#0"/>
+    <trip id="6" depart="5.00" from="-441142718#1" to="-222786842#0"/>
+    <trip id="7" depart="5.00" from="-8725031#1" to="441142718#1"/>
+    <trip id="8" depart="5.00" from="222786842#0" to="-222786842#0"/>
+    <trip id="9" depart="7.00" from="222786842#0" to="8725031#1"/>
+    <trip id="10" depart="7.00" from="-441142718#1" to="8725031#1"/>
+    <trip id="11" depart="7.00" from="222786838#0" to="-222786842#0"/>
+    <trip id="12" depart="8.00" from="222786838#0" to="441142718#1"/>
+    <trip id="13" depart="8.00" from="-8725031#1" to="8725031#1"/>
+    <trip id="14" depart="10.00" from="-8725031#1" to="441142718#1"/>
+    <trip id="15" depart="10.00" from="222786842#0" to="-222786838#0"/>
+    <trip id="16" depart="11.00" from="222786838#0" to="441142718#1"/>
+    <trip id="17" depart="12.00" from="-8725031#1" to="441142718#1"/>
+    <trip id="18" depart="13.00" from="-441142718#1" to="-222786838#0"/>
+    <trip id="19" depart="13.00" from="-8725031#1" to="441142718#1"/>
+    <trip id="20" depart="14.00" from="222786838#0" to="8725031#1"/>
+    <trip id="21" depart="15.00" from="-441142718#1" to="-222786842#0"/>
+    <trip id="22" depart="17.00" from="222786838#0" to="8725031#1"/>
+    <trip id="23" depart="17.00" from="222786842#0" to="-222786842#0"/>
+    <trip id="24" depart="21.00" from="222786838#0" to="441142718#1"/>
+    <trip id="25" depart="21.00" from="222786842#0" to="-222786842#0"/>
+    <trip id="26" depart="23.00" from="222786842#0" to="-222786842#0"/>
+    <trip id="27" depart="23.00" from="-8725031#1" to="-222786842#0"/>
+    <trip id="28" depart="24.00" from="-8725031#1" to="-222786838#0"/>
+    <trip id="29" depart="25.00" from="-441142718#1" to="-222786842#0"/>
+    <trip id="30" depart="26.00" from="-8725031#1" to="8725031#1"/>
+    <trip id="31" depart="26.00" from="222786842#0" to="-222786842#0"/>
+    <trip id="32" depart="27.00" from="-8725031#1" to="8725031#1"/>
+    <trip id="33" depart="28.00" from="-8725031#1" to="441142718#1"/>
+    <trip id="34" depart="28.00" from="222786842#0" to="441142718#1"/>
+    <trip id="35" depart="29.00" from="-8725031#1" to="-222786838#0"/>
+    <trip id="36" depart="29.00" from="-8725031#1" to="-222786838#0"/>
+</routes>
