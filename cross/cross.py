@@ -22,16 +22,38 @@ import os
 import sys
 import optparse
 import random
+import subprocess
 
-# we need to import python modules from the $SUMO_HOME/tools directory
-if 'SUMO_HOME' in os.environ:
-    tools = os.path.join(os.environ['SUMO_HOME'], 'tools')
-    sys.path.append(tools)
-else:
-    sys.exit("please declare environment variable 'SUMO_HOME'")
 
-from sumolib import checkBinary  # noqa
-import traci  # noqa
+# 本脚本文件所在的目录
+THISDIR = os.path.dirname('Users/siyuanzheng/Downloads/DynamicTrafficLight-master2/plymouth')
+
+# 需要从$SUMO_HOME/tools目录导入相关包，为此需要先设置环境变量SUMO_HOME，
+# 若未设置，请设置之。
+try:
+    # tutorial in tests
+    sys.path.append(os.path.join(THISDIR, '..', '..', '..', '..', "tools"))
+    # tutorial in docs
+    sys.path.append(os.path.join(os.environ.get("SUMO_HOME", os.path.join(
+        THISDIR, "..", "..", "..")), "tools"))  
+    import traci
+    from sumolib import checkBinary  # noqa
+    import randomTrips
+except ImportError:
+    sys.exit(
+        "please declare environment variable 'SUMO_HOME' as the root directory of your sumo installation (it should contain folders 'bin', 'tools' and 'docs')")
+
+
+# 车辆的最短绿灯时间
+MIN_GREEN_TIME = 15
+# 红绿灯仿真计划的初始状态，参见'pedcrossing.tll.xml'    
+VEHICLE_GREEN_PHASE = 0
+# 红绿灯的ID（仅包含一个），默认情况下它与受控交叉路口的ID相同。
+TLSID = 'C'
+
+# 受控交叉口的人行横道边界
+WALKINGAREAS = [':C_w0', ':C_w1']
+CROSSINGS = [':C_c0']
 
 
 def generate_routefile():
@@ -43,7 +65,7 @@ def generate_routefile():
     # pNS = 1. / 30
     pNS = 1. / 12
     pSN = 1. / 13
-    with open("cross.rou.xml", "w") as routes:
+    with open("plymouth.rou.xml", "w") as routes:
         print("""<routes>
         <vType id="typeWE" accel="0.8" decel="4.5" sigma="0.5" length="5" minGap="2.5" maxSpeed="16.67" \
 guiShape="passenger"/>
@@ -84,12 +106,21 @@ guiShape="passenger"/>
 
 
 def run():
+    # 记录允许车辆通行的绿灯持续时间    
+    greenTimeSoFar = 0
+
+    # 行人过马路按钮是否按下
+    activeRequest = False
+
     """execute the TraCI control loop"""
     step = 0
     # we start with phase 2 where EW has green
     traci.trafficlight.setPhase("0", 2)
     while traci.simulation.getMinExpectedNumber() > 0:
         traci.simulationStep()
+#        # 如果车辆的绿灯时间超过最短绿灯时间，则确定是否有等待过马路的行人，并切换信号灯状态
+        if not activeRequest:
+            activeRequest = checkWaitingPersons()
         if traci.trafficlight.getPhase("0") == 2:
             # we are not already switching
             # if traci.inductionloop.getLastStepVehicleNumber("0") > 0:
@@ -102,6 +133,23 @@ def run():
         step += 1
     traci.close()
     sys.stdout.flush()
+
+
+# 检测是否有行人需要过马路
+def checkWaitingPersons():
+
+    # 检测路口两侧的行人
+    for edge in WALKINGAREAS:
+        peds = traci.edge.getLastStepPersonIDs(edge)
+
+        # 检测是否有人在路口等待
+        # 我们假设行人在等待1秒后，才按下过马路按钮
+        for ped in peds:
+            if (traci.person.getWaitingTime(ped) == 1 and
+                    traci.person.getNextEdge(ped) in CROSSINGS):
+                print("%s pushes the button" % ped)
+                return True
+    return False
 
 
 def get_options():
@@ -124,10 +172,28 @@ if __name__ == "__main__":
         sumoBinary = checkBinary('sumo-gui')
 
     # first, generate the route file for this simulation
-    generate_routefile()
 
-    # this is the normal way of using traci. sumo is started as a
-    # subprocess and then the python script connects and runs
-    traci.start([sumoBinary, "-c", "cross.sumocfg",
-                             "--tripinfo-output", "tripinfo.xml"])
+    net = 'cross.net.xml'
+
+    # 借助工具软件netconvert，从普通的xml输入构建多模态网络
+    subprocess.call([checkBinary('netconvert'),
+                     '-c', os.path.join('cross.netccfg'),
+                     '--output-file', net],
+                    stdout=sys.stdout, stderr=sys.stderr)
+    # 随机生成仿真中的行人
+    randomTrips.main(randomTrips.get_options([
+        '--net-file', net,
+        '--output-trip-file', 'pedestrians.trip.xml',
+        '--seed', '42',  # make runs reproducible
+        '--pedestrians',
+        '--prefix', 'ped',
+        # prevent trips that start and end on the same edge
+        '--min-distance', '1',
+        '--trip-attributes', 'departPos="random" arrivalPos="random"',
+        '--binomial', '4',
+        '--period', '35']))
+
+    # 这是启动TraCI的一般方法。sumo作为子进程启动，然后使用本脚本文件连接该子进程  
+    traci.start([sumoBinary, '-c', os.path.join('cross.sumocfg')])
+    # 调用TraCI控制主循环过程
     run()
