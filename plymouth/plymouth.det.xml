@@ -1,11 +1,11 @@
 <additional xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/additional_file.xsd">
-    <laneAreaDetector file="plymouth.out" freq="60" friendlyPos="x" id="e2det_-441142718#1_0" lane="-441142718#1_0" length="50" pos="132.58"/>
-    <laneAreaDetector file="plymouth.out" freq="60" friendlyPos="x" id="e2det_-441142718#1_1" lane="-441142718#1_1" length="50" pos="132.58"/>
-    <laneAreaDetector file="plymouth.out" freq="60" friendlyPos="x" id="e2det_-441142718#1_2" lane="-441142718#1_2" length="50" pos="132.58"/>
-    <laneAreaDetector file="plymouth.out" freq="60" friendlyPos="x" id="e2det_-8725031#1_0" lane="-8725031#1_0" length="50" pos="112.57"/>
-    <laneAreaDetector file="plymouth.out" freq="60" friendlyPos="x" id="e2det_222786838#0_0" lane="222786838#0_0" length="50" pos="139.57"/>
-    <laneAreaDetector file="plymouth.out" freq="60" friendlyPos="x" id="e2det_222786838#0_1" lane="222786838#0_1" length="50" pos="139.57"/>
-    <laneAreaDetector file="plymouth.out" freq="60" friendlyPos="x" id="e2det_222786838#0_2" lane="222786838#0_2" length="50" pos="139.57"/>
-    <laneAreaDetector file="plymouth.out" freq="60" friendlyPos="x" id="e2det_222786842#0_0" lane="222786842#0_0" length="50" pos="107.78"/>
-    <laneAreaDetector file="plymouth.out" freq="60" friendlyPos="x" id="e2det_222786842#0_1" lane="222786842#0_1" length="50" pos="107.78"/>
+    <laneAreaDetector file="plymouth.out" freq="60" friendlyPos="x" id="e2det_-441142718#1_0" lane="-441142718#1_0" length="50" pos="11.93"/>
+    <laneAreaDetector file="plymouth.out" freq="60" friendlyPos="x" id="e2det_-441142718#1_1" lane="-441142718#1_1" length="50" pos="11.93"/>
+    <laneAreaDetector file="plymouth.out" freq="60" friendlyPos="x" id="e2det_-441142718#1_2" lane="-441142718#1_2" length="50" pos="11.93"/>
+    <laneAreaDetector file="plymouth.out" freq="60" friendlyPos="x" id="e2det_-8725031#1_0" lane="-8725031#1_0" length="44.17" pos="0"/>
+    <laneAreaDetector file="plymouth.out" freq="60" friendlyPos="x" id="e2det_222786838#0_0" lane="222786838#0_0" length="50" pos="13.11"/>
+    <laneAreaDetector file="plymouth.out" freq="60" friendlyPos="x" id="e2det_222786838#0_1" lane="222786838#0_1" length="50" pos="13.11"/>
+    <laneAreaDetector file="plymouth.out" freq="60" friendlyPos="x" id="e2det_222786838#0_2" lane="222786838#0_2" length="50" pos="13.11"/>
+    <laneAreaDetector file="plymouth.out" freq="60" friendlyPos="x" id="e2det_222786842#0_0" lane="222786842#0_0" length="28.96" pos="0"/>
+    <laneAreaDetector file="plymouth.out" freq="60" friendlyPos="x" id="e2det_222786842#0_1" lane="222786842#0_1" length="28.96" pos="0"/>
 </additional>

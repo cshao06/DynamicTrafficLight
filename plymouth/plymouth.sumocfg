@@ -5,8 +5,7 @@
     <input>
         <net-file value="plymouth.net.xml"/>
         <route-files value="plymouth.rou.xml"/>
-        <additional-files value="plymouth.det.xml"/>
-            <!-- <additional-files value="cross.tls.xml"/> -->
+        <additional-files value="plymouth.det.xml,pedestrians.trip.xml"/>
         <gui-settings-file value="plymouth.gui.xml"/>
     </input>
 
