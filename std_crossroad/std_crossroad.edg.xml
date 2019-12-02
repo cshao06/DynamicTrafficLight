@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- generated on Mon 02 Dec 2019 03:09:14 PM EST by Eclipse SUMO netedit Version 1.3.1
+<!-- generated on Mon 02 Dec 2019 03:38:35 PM EST by Eclipse SUMO netedit Version 1.3.1
 <configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/netconvertConfiguration.xsd">
 
     <input>
@@ -31,11 +31,27 @@
         <walkingareas value="true"/>
     </pedestrian>
 
+    <netedit>
+        <additional-files value="std_crossroad.det.xml"/>
+    </netedit>
+
 </configuration>
 -->
 
 <edges version="1.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/edges_file.xsd">
     <edge id="CE" from="C" to="E" priority="1" numLanes="4" speed="13.89">
+        <lane index="0" allow="pedestrian" width="2.00"/>
+        <lane index="1" disallow="pedestrian"/>
+        <lane index="2" disallow="pedestrian"/>
+        <lane index="3" disallow="pedestrian"/>
+    </edge>
+    <edge id="CN" from="C" to="N" priority="-1" numLanes="4" speed="13.89" length="100.00">
+        <lane index="0" allow="pedestrian" width="2.00"/>
+        <lane index="1" disallow="pedestrian"/>
+        <lane index="2" disallow="pedestrian"/>
+        <lane index="3" disallow="pedestrian"/>
+    </edge>
+    <edge id="CS" from="C" to="S" priority="-1" numLanes="4" speed="13.89">
         <lane index="0" allow="pedestrian" width="2.00"/>
         <lane index="1" disallow="pedestrian"/>
         <lane index="2" disallow="pedestrian"/>
@@ -53,31 +69,19 @@
         <lane index="2" disallow="pedestrian"/>
         <lane index="3" disallow="pedestrian"/>
     </edge>
+    <edge id="NC" from="N" to="C" priority="-1" numLanes="4" speed="13.89" length="100.00">
+        <lane index="0" allow="pedestrian" width="2.00"/>
+        <lane index="1" disallow="pedestrian"/>
+        <lane index="2" disallow="pedestrian"/>
+        <lane index="3" disallow="pedestrian"/>
+    </edge>
+    <edge id="SC" from="S" to="C" priority="-1" numLanes="4" speed="13.89">
+        <lane index="0" allow="pedestrian" width="2.00"/>
+        <lane index="1" disallow="pedestrian"/>
+        <lane index="2" disallow="pedestrian"/>
+        <lane index="3" disallow="pedestrian"/>
+    </edge>
     <edge id="WC" from="W" to="C" priority="1" numLanes="4" speed="13.89">
-        <lane index="0" allow="pedestrian" width="2.00"/>
-        <lane index="1" disallow="pedestrian"/>
-        <lane index="2" disallow="pedestrian"/>
-        <lane index="3" disallow="pedestrian"/>
-    </edge>
-    <edge id="gneE0" from="N" to="C" priority="-1" numLanes="4" speed="13.89" length="100.00">
-        <lane index="0" allow="pedestrian" width="2.00"/>
-        <lane index="1" disallow="pedestrian"/>
-        <lane index="2" disallow="pedestrian"/>
-        <lane index="3" disallow="pedestrian"/>
-    </edge>
-    <edge id="gneE1" from="S" to="C" priority="-1" numLanes="4" speed="13.89">
-        <lane index="0" allow="pedestrian" width="2.00"/>
-        <lane index="1" disallow="pedestrian"/>
-        <lane index="2" disallow="pedestrian"/>
-        <lane index="3" disallow="pedestrian"/>
-    </edge>
-    <edge id="gneE2" from="C" to="N" priority="-1" numLanes="4" speed="13.89" length="100.00">
-        <lane index="0" allow="pedestrian" width="2.00"/>
-        <lane index="1" disallow="pedestrian"/>
-        <lane index="2" disallow="pedestrian"/>
-        <lane index="3" disallow="pedestrian"/>
-    </edge>
-    <edge id="gneE3" from="C" to="S" priority="-1" numLanes="4" speed="13.89">
         <lane index="0" allow="pedestrian" width="2.00"/>
         <lane index="1" disallow="pedestrian"/>
         <lane index="2" disallow="pedestrian"/>

@@ -6,6 +6,7 @@
         <net-file value="std_crossroad.net.xml"/>
         <route-files value="std_crossroad.rou.xml,std_crossroad.ped.xml"/>
         <!-- <additional-files value="std_crossroad.tll.xml"/> -->
+        <additional-files value="std_crossroad.det.xml"/>
     </input>
 
     <report>
