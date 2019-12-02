@@ -4,7 +4,7 @@ def algr (time):
   line0 = [-1, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1]
   line1 = [1, -1, 1, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1]
   line2 = [1, 1, -1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-  line3 = [0, 0, 0, -1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1]
+  line3 = [0, 0, 0, -1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1]
   state_temp = torch.FloatTensor([line0, line1, line2, line3])
   state = torch.zeros(16, 16)
   privilege = torch.zeros(16)
@@ -33,7 +33,7 @@ def algr (time):
 
   for i in range(loss_line.shape[0]):
     if loss_line[i] == min_mum:
-      if privilege[i] < min_temp
+      if privilege[i] < min_temp:
         min_p = privilege
         index = i
   #调度index
@@ -54,20 +54,27 @@ def algr (time):
     #获取可行域下一个执行对象index
     for i in range(16):
       if prob[i] > 0:
-        if loss_line[i] < min_loss
-          min_loss = loss_line[i]
+        if loss_line[i] < min_loss:
+          min_loss == loss_line[i]
           index = i
           min_p = privilege[i]
-        elif loss_line[i] = min_loss
-          if privilege[i] < min_p
-          min_loss = loss_line[i]
-          index = i
-          min_p = privilege[i]
+        elif loss_line[i] == min_loss:
+          if privilege[i] < min_p:
+            min_loss = loss_line[i]
+            index = i
+            min_p = privilege[i]
 
     privilege[index] = 0
     state_temp = state[index]
     state_temp -= 1
     state_temp[state_temp < 0] = 0
     prob = prob * state_temp  #更新prob空间
+
+
+    light = torch.LongTensor(16)
+  
+
+
+
   
   privilege += 1 #时间片结束，所有状态优先级均上升
