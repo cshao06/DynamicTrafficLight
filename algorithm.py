@@ -40,7 +40,7 @@ def algr (time):
   privilege[index] = 0
   state_temp = state[index]
   state_temp -= 1
-  state_temp[state_temp < 0] = 0 
+  state_temp[state_temp < 0] = 0
   prob = prob * state_temp #求prob空间
 
   #调度可行域
@@ -70,11 +70,5 @@ def algr (time):
     state_temp[state_temp < 0] = 0
     prob = prob * state_temp  #更新prob空间
 
-
     light = torch.LongTensor(16)
-  
-
-
-
-  
   privilege += 1 #时间片结束，所有状态优先级均上升
