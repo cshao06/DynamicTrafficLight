@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- generated on Mon 02 Dec 2019 02:24:16 PM EST by Eclipse SUMO netedit Version 1.3.1
+<!-- generated on Mon 02 Dec 2019 03:09:14 PM EST by Eclipse SUMO netedit Version 1.3.1
 <configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/netconvertConfiguration.xsd">
 
     <input>
@@ -9,7 +9,7 @@
 
     <output>
         <output-file value="std_crossroad.net.xml"/>
-        <plain-output-prefix value="/home/cshao/Documents/Fall2019/571/Project/DynamicTrafficLight/std_crossroad/data/std_crossroad"/>
+        <plain-output-prefix value="/home/cshao/Documents/Fall2019/571/Project/DynamicTrafficLight/std_crossroad/std_crossroad"/>
     </output>
 
     <processing>
@@ -59,8 +59,8 @@
 
     <connection from="gneE3" to="gneE1" fromLane="3" toLane="3"/>
 
-    <crossing node="C" edges="gneE2 gneE0" priority="1" width="4.00" linkIndex="23"/>
-    <crossing node="C" edges="CE EC" priority="1" width="4.00" linkIndex="24"/>
-    <crossing node="C" edges="gneE3 gneE1" priority="1" width="4.00" linkIndex="25"/>
-    <crossing node="C" edges="CW WC" priority="1" width="4.00" linkIndex="26"/>
+    <crossing node="C" edges="gneE2 gneE0" priority="1" width="4.00"/>
+    <crossing node="C" edges="CE EC" priority="1" width="4.00"/>
+    <crossing node="C" edges="gneE3 gneE1" priority="1" width="4.00"/>
+    <crossing node="C" edges="CW WC" priority="1" width="4.00"/>
 </connections>

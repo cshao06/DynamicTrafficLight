@@ -1,19 +1,4 @@
 #!/usr/bin/env python
-# Eclipse SUMO, Simulation of Urban MObility; see https://eclipse.org/sumo
-# Copyright (C) 2009-2019 German Aerospace Center (DLR) and others.
-# This program and the accompanying materials
-# are made available under the terms of the Eclipse Public License v2.0
-# which accompanies this distribution, and is available at
-# http://www.eclipse.org/legal/epl-v20.html
-# SPDX-License-Identifier: EPL-2.0
-
-# @file    runner.py
-# @author  Lena Kalleske
-# @author  Daniel Krajzewicz
-# @author  Michael Behrisch
-# @author  Jakob Erdmann
-# @date    2009-03-26
-# @version $Id$
 
 """
 Tutorial for traffic light control via the TraCI interface.
@@ -40,6 +25,7 @@ if 'SUMO_HOME' in os.environ:
     sys.path.append(tools)
 else:
     sys.exit("please declare environment variable 'SUMO_HOME'")
+
 import traci  # noqa
 from sumolib import checkBinary  # noqa
 import randomTrips  # noqa
@@ -58,39 +44,60 @@ WALKINGAREAS = [':C_w0', ':C_w1']
 CROSSINGS = [':C_c0']
 
 
+# def run():
+#     """execute the TraCI control loop"""
+#     # track the duration for which the green phase of the vehicles has been
+#     # active
+#     greenTimeSoFar = 0
+
+#     # whether the pedestrian button has been pressed
+#     activeRequest = False
+
+#     # main loop. do something every simulation step until no more vehicles are
+#     # loaded or running
+#     while traci.simulation.getMinExpectedNumber() > 0:
+#         traci.simulationStep()
+
+#         # decide wether there is a waiting pedestrian and switch if the green
+#         # phase for the vehicles exceeds its minimum duration
+#         if not activeRequest:
+#             activeRequest = checkWaitingPersons()
+#         if traci.trafficlight.getPhase(TLSID) == VEHICLE_GREEN_PHASE:
+#             greenTimeSoFar += 1
+#             if greenTimeSoFar > MIN_GREEN_TIME:
+#                 # check whether someone has pushed the button
+
+#                 if activeRequest:
+#                     # switch to the next phase
+#                     traci.trafficlight.setPhase(
+#                         TLSID, VEHICLE_GREEN_PHASE + 1)
+#                     # reset state
+#                     activeRequest = False
+#                     greenTimeSoFar = 0
+
+#     sys.stdout.flush()
+#     traci.close()
+
 def run():
     """execute the TraCI control loop"""
-    # track the duration for which the green phase of the vehicles has been
-    # active
-    greenTimeSoFar = 0
-
-    # whether the pedestrian button has been pressed
-    activeRequest = False
-
-    # main loop. do something every simulation step until no more vehicles are
-    # loaded or running
+    step = 0
+    # we start with phase 2 where EW has green
+    traci.trafficlight.setPhase("0", 2)
     while traci.simulation.getMinExpectedNumber() > 0:
         traci.simulationStep()
-
-        # decide wether there is a waiting pedestrian and switch if the green
-        # phase for the vehicles exceeds its minimum duration
-        if not activeRequest:
-            activeRequest = checkWaitingPersons()
-        if traci.trafficlight.getPhase(TLSID) == VEHICLE_GREEN_PHASE:
-            greenTimeSoFar += 1
-            if greenTimeSoFar > MIN_GREEN_TIME:
-                # check whether someone has pushed the button
-
-                if activeRequest:
-                    # switch to the next phase
-                    traci.trafficlight.setPhase(
-                        TLSID, VEHICLE_GREEN_PHASE + 1)
-                    # reset state
-                    activeRequest = False
-                    greenTimeSoFar = 0
-
-    sys.stdout.flush()
+        if traci.trafficlight.getPhase("0") == 2:
+            # we are not already switching
+            # if traci.inductionloop.getLastStepVehicleNumber("0") > 0:
+            if traci.lanearea.getLastStepVehicleNumber("TLS0_my_program_E2CollectorOn_2i_0") > 0:
+                # there is a vehicle from the north, switch
+                traci.trafficlight.setPhase("0", 3)
+            else:
+                # otherwise try to keep green for EW
+                traci.trafficlight.setPhase("0", 2)
+        step += 1
     traci.close()
+    sys.stdout.flush()
+
 
 
 def checkWaitingPersons():
@@ -134,17 +141,17 @@ if __name__ == "__main__":
     else:
         sumoBinary = checkBinary('sumo-gui')
 
-    net = 'pedcrossing.net.xml'
+    net = 'std_crossroad.net.xml'
     # build the multi-modal network from plain xml inputs
-    subprocess.call([checkBinary('netconvert'),
-                     '-c', os.path.join('data', 'pedcrossing.netccfg'),
-                     '--output-file', net],
-                    stdout=sys.stdout, stderr=sys.stderr)
+    # subprocess.call([checkBinary('netconvert'),
+    #                  '-c', os.path.join('data', 'pedcrossing.netccfg'),
+    #                  '--output-file', net],
+    #                 stdout=sys.stdout, stderr=sys.stderr)
 
     # generate the pedestrians for this simulation
     randomTrips.main(randomTrips.get_options([
         '--net-file', net,
-        '--output-trip-file', 'pedestrians.trip.xml',
+        '--output-trip-file', 'std_crossroad.ped.xml',
         '--seed', '42',  # make runs reproducible
         '--pedestrians',
         '--prefix', 'ped',
@@ -156,5 +163,5 @@ if __name__ == "__main__":
 
     # this is the normal way of using traci. sumo is started as a
     # subprocess and then the python script connects and runs
-    traci.start([sumoBinary, '-c', os.path.join('data', 'run.sumocfg')])
+    traci.start([sumoBinary, '-c', os.path.join('data', 'std_crossroad.sumocfg')])
     run()
