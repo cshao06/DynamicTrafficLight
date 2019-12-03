@@ -42,9 +42,9 @@ PEDESTRIAN_GREEN_PHASE = 2
 TLSID = 'C'
 
 # pedestrian edges at the controlled intersection
-WALKINGAREAS = [':C_w0', ':C_w1', ':C_w2', ':C_w3']
+WALKINGAREAS = [':C_w3', ':C_w2', ':C_w1', ':C_w0']
 # :C_c0 north, ':E_w0', ':N_w0', 'S_w0', 'W_w0'
-CROSSINGS = [':C_c0', ':C_c1', ':C_c2', ':C_c3']
+CROSSINGS = [':C_c2', ':C_c1', ':C_c0', ':C_c3']
 
 
 # def run():
@@ -109,7 +109,7 @@ def run():
         i += 1
         vehicle[i] = traci.lanearea.getLastStepVehicleNumber("e2det_SC_1")
         i += 1
-        vehicle[i] = 0
+        vehicle[i] = pedest[0]
         i += 1
         vehicle[i] = traci.lanearea.getLastStepVehicleNumber("e2det_EC_3")
         i += 1
@@ -117,7 +117,7 @@ def run():
         i += 1
         vehicle[i] = traci.lanearea.getLastStepVehicleNumber("e2det_EC_1")
         i += 1
-        vehicle[i]=0
+        vehicle[i]=pedest[1]
         i += 1
         vehicle[i] = traci.lanearea.getLastStepVehicleNumber("e2det_NC_3")
         i += 1
@@ -125,7 +125,7 @@ def run():
         i += 1
         vehicle[i] = traci.lanearea.getLastStepVehicleNumber("e2det_NC_1")
         i += 1
-        vehicle[i] = 0
+        vehicle[i] = pedest[2]
         i+=1
         vehicle[i] = traci.lanearea.getLastStepVehicleNumber("e2det_WC_3")
         i += 1
@@ -133,7 +133,8 @@ def run():
         i += 1
         vehicle[i] = traci.lanearea.getLastStepVehicleNumber("e2det_WC_1")
         i += 1
-        vehicle[i] = 0
+        vehicle[i] = pedest[3]
+
 
         #生成调度
         schedule=geneSchedule(step,pedest,vehicle)
@@ -146,27 +147,34 @@ def run():
 
 def checkWaitingPersons():
     """check whether a person has requested to cross the street"""
-
+# pedestrian edges at the controlled intersection
+#ALKINGAREAS = [':C_w3', ':C_w2', ':C_w1', ':C_w0']
+# :C_c0 north, ':E_w0', ':N_w0', 'S_w0', 'W_w0'
+#CROSSINGS = [':C_c2', ':C_c1', ':C_c0', ':C_c3']
     persons = torch.zeros(4)
 
     # check both sides of the crossing
 
     for edge in WALKINGAREAS:
-        
+        index = 0
         peds = traci.edge.getLastStepPersonIDs(edge)
         # check who is waiting at the crossing
         # we assume that pedestrians push the button upon
         # standing still for 1s
         for ped in peds:
             if (traci.person.getWaitingTime(ped) == 1 and
-                    traci.person.getNextEdge(ped) in CROSSINGS):
+                    traci.person.getNextEdge(ped) == CROSSINGS[index]):
+                    persons[index] = 1
+            elif(traci.person.getWaitingTime(ped) == 1 and
+                    traci.person.getNextEdge(ped) == CROSSINGS[index + 1]):
+                    persons[index+1] = 1
                 # numWaiting = traci.trafficlight.getServedPersonCount(TLSID, PEDESTRIAN_GREEN_PHASE)
                 # print("%s: pedestrian %s pushes the button (waiting: %s)" %
                 #       (traci.simulation.getTime(), ped, numWaiting))
-                print("%s pushes the button" % ped)
-                people[index]+=1
+                #print("%s pushes the button" % ped)
                 #return True
         index+=1
+
 
     return persons
 
