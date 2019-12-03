@@ -157,6 +157,23 @@ def get_options():
     options, args = optParser.parse_args()
     return options
 
+# 计算时间片内平均等待车辆和行人，行人权重为车辆的1.2倍，计算车辆的平均通过速度
+def averageWaiting(DETECTORS, people):
+    veh_num=0
+    speed=0
+    for dec in DETECTORS:
+        veh_num+=traci.lanearea.getLastStepHaltingNumber(dec)
+        #getJamLengthVehicle
+        # 计算车辆通过速度
+        speed+=traci.lanearea.getLastStepMeanSpeed(dec)
+
+    ped_num=torch.mean(people)*len(people.numpy().tolist())
+    averageWait=veh_num+1.5*ped_num
+    averageSpeed=speed/len(DETECTORS)
+
+    return averageWait,averageSpeed
+
+
 
 # 生成调度face
 def geneSchedule(time, people, vehicle):
