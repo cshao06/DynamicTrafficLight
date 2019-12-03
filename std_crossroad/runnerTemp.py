@@ -42,8 +42,9 @@ PEDESTRIAN_GREEN_PHASE = 2
 TLSID = 'C'
 
 # pedestrian edges at the controlled intersection
-WALKINGAREAS = [':C_w0', ':C_w1']
-CROSSINGS = [':C_c0']
+WALKINGAREAS = [':C_w0', ':C_w1', ':C_w2', ':C_w3', ':E_w0', ':N_w0', 'S_w0', 'W_w0']
+# :C_c0 north
+CROSSINGS = [':C_c0', ':C_c1', ':C_c2', ':C_c3']
 
 
 # def run():
@@ -136,7 +137,7 @@ def run():
 
         #生成调度
         schedule=geneSchedule(step,pedest,vehicle)
-	
+
         step += 1
     traci.close()
     sys.stdout.flush()
