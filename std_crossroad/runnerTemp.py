@@ -105,9 +105,10 @@ def run():
         vehicle=torch.zeros(12)
         for idx, det in enumerate(DETECTORS):
             vehicle[idx] = traci.lanearea.getLastStepHaltingNumber(det)
-
+        traffic = torch.cat((vehicle, pedest), 0)
+        privilege = torch.zeros(16)
         #生成调度
-        schedule=geneSchedule(step,pedest,vehicle)
+        schedule=geneSchedule(step,traffic,privilege)
 
         step += 1
     traci.close()
@@ -159,7 +160,7 @@ def get_options():
 
 
 # 生成调度face
-def geneSchedule(time, people, vehicle):
+def geneSchedule(time, penalty，privilege):
     # 初始化，可行置1，不可行置0，本身置1
     line0 = [-1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1]
     line1 = [1, -1, 1, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1]
@@ -167,39 +168,41 @@ def geneSchedule(time, people, vehicle):
     line3 = [0, 0, 0, -1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1]
     state_temp = torch.FloatTensor([line0, line1, line2, line3])
     state = torch.zeros(16, 16)
-    privilege = torch.zeros(16)
+
     for i in range(16):
         for j in range(16):
             bias = i // 4
             line = i % 4
             state[i][j] = state_temp[line][(j + 12 * bias) % 16]
+
+    #0冲突， 1不冲突， -1本身
     state = state + 1
+
+    #1冲突， 2不冲突， 0本身
     # print(state)
+    light = torch.zeros(16)
+    #根据时间片初始化penalty
+    penalty = torch.rand(16, 16) * time
+    penalty = penalty.to(int)
+    #print('penalty',penalty.size())
 
-    # 获取每个状态的代价损失
-    # veh=torch.Tensor(vehicle)
-    veh = vehicle
-    peo=people
-    loss_arr = torch.zeros(16)
-    for k in range(16):
-        s = state[k]
-        s = s.numpy().tolist()
-        loss = 0
-        for p in range(16):
-            loss =loss+ s[p] * veh[p]+s[p] * peo[p]
-        loss_arr[k] = loss
-
-    # 获取当前loss最低对象
-    # min_mum=min(enumerate(loss_arr))
-    _, min_mum = min(enumerate(loss_arr), key=operator.itemgetter(1))
-
+    state_copy = state.clone()
+    state_copy[state_copy != 1] = 0
+    #1冲突， 0冲突
+    #print('state_copy',state_copy.size())
+    #获取当前loss最低对象
+    loss = penalty * state_copy
+    print('loss',loss.size())
+    loss_line = loss.sum(0)
+    print('loss_line',loss_line.size())
+    min_mum  = min(loss_line)
     list_temp = []
     min_p = 9999
     index = -1
     prob = torch.ones(16)
-    light = np.zeros(16)
-    for i in range(loss_arr.shape[0]):
-        if loss_arr[i] == min_mum:
+
+    for i in range(loss_line.shape[0]):
+        if loss_line[i] == min_mum:
             if privilege[i] < min_p:
                 min_p = privilege[i]
                 index = i
@@ -240,13 +243,20 @@ def geneSchedule(time, people, vehicle):
         # print(index)
         # print(prob)
 
-    traflight = torch.zeros(12)
+    vlight = torch.zeros(12)
+    plight = torch.zeros(4)   
     j = 0
+    k = 0
     for i in range(16):
         if i != 3 and i != 7 and i != 11 and i != 15:
-            traflight[j] = light[i]
+            vight[j] = light[i]
             j += 1
-    traflight = traflight.permute(9,8,7,6,5,4,3,2,1,12,11,10)
+        else:
+            plight[k] = light[i]
+            k+=1
+    vlight = vlight.permute(9,8,7,6,5,4,3,2,1,12,11,10)
+    plight = plight.permute(2,1,0,3)
+    traflight = torch.cat((vlight, plight),0)
     privilege += 1  # 时间片结束，所有状态优先级均上升
     return traflight
 
