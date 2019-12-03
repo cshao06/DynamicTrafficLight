@@ -82,6 +82,19 @@ DETECTORS = ["e2det_SC_3", "e2det_SC_2", "e2det_SC_1", "e2det_EC_3", "e2det_EC_2
 #     sys.stdout.flush()
 #     traci.close()
 
+TLS_ID = '0'
+
+def setTrafficlight(schedule):
+    light_str = ''
+    for light in schedule:
+        if light == 0:
+            light_str += 'r'
+        elif light == 1:
+            light_str += 'g'
+        else:
+            light_str += 'G'
+    traci.trafficlight.setRedYellowGreenState(TLS_ID, light_str)
+
 def run():
     """execute the TraCI control loop"""
     step = 0
@@ -107,7 +120,13 @@ def run():
             vehicle[idx] = traci.lanearea.getLastStepHaltingNumber(det)
 
         #生成调度
-        schedule=geneSchedule(step,pedest,vehicle)
+        # schedule=geneSchedule(step,pedest,vehicle)
+        if step % 10 == 0:
+            schedule = torch.LongTensor([0,0,0,1,2,1,0,0,0,1,2,1,2,0,2,0])
+        elif step % 10 == 5:
+            schedule = torch.LongTensor([1,2,1,0,0,0,1,2,1,0,0,0,0,2,0,2])
+
+        setTrafficlight(schedule)
 
         step += 1
     traci.close()
