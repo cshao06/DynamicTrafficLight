@@ -197,7 +197,7 @@ def averageWaiting(DETECTORS, people):
 
 
 # 生成调度face
-def geneSchedule(time, penalty，privilege):
+def geneSchedule(time, penalty, privilege):
     # 初始化，可行置1，不可行置0，本身置1
     line0 = [-1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1]
     line1 = [1, -1, 1, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1]
@@ -252,6 +252,7 @@ def geneSchedule(time, penalty，privilege):
     # print(index)
     # print(prob)
     # 调度可行域
+    loss_arr = torch.zeros(16)
     while (prob.sum() != 0):
         loss_arr[index] = 9999
         list_temp = []
@@ -281,12 +282,12 @@ def geneSchedule(time, penalty，privilege):
         # print(prob)
 
     vlight = torch.zeros(12)
-    plight = torch.zeros(4)   
+    plight = torch.zeros(4)
     j = 0
     k = 0
     for i in range(16):
         if i != 3 and i != 7 and i != 11 and i != 15:
-            vight[j] = light[i]
+            vlight[j] = light[i]
             j += 1
         else:
             plight[k] = light[i]
