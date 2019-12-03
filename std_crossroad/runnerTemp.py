@@ -46,6 +46,7 @@ WALKINGAREAS = [':C_w3', ':C_w2', ':C_w1', ':C_w0']
 # :C_c0 north, ':E_w0', ':N_w0', 'S_w0', 'W_w0'
 CROSSINGS = [':C_c2', ':C_c1', ':C_c0', ':C_c3']
 
+DETECTORS = ["e2det_SC_3", "e2det_SC_2", "e2det_SC_1", "e2det_EC_3", "e2det_EC_2", "e2det_EC_1", "e2det_NC_3", "e2det_NC_2", "e2det_NC_1", "e2det_WC_3", "e2det_WC_2", "e2det_WC_1"]
 
 # def run():
 #     """execute the TraCI control loop"""
@@ -101,40 +102,9 @@ def run():
         #获取等待行人
         pedest=checkWaitingPersons()
         #获取等待车辆
-        vehicle=torch.zeros(16)
-        i=0
-        vehicle[i] =traci.lanearea.getLastStepVehicleNumber("e2det_SC_3")
-        i+=1
-        vehicle[i] = traci.lanearea.getLastStepVehicleNumber("e2det_SC_2")
-        i += 1
-        vehicle[i] = traci.lanearea.getLastStepVehicleNumber("e2det_SC_1")
-        i += 1
-        vehicle[i] = pedest[0]
-        i += 1
-        vehicle[i] = traci.lanearea.getLastStepVehicleNumber("e2det_EC_3")
-        i += 1
-        vehicle[i] = traci.lanearea.getLastStepVehicleNumber("e2det_EC_2")
-        i += 1
-        vehicle[i] = traci.lanearea.getLastStepVehicleNumber("e2det_EC_1")
-        i += 1
-        vehicle[i]=pedest[1]
-        i += 1
-        vehicle[i] = traci.lanearea.getLastStepVehicleNumber("e2det_NC_3")
-        i += 1
-        vehicle[i] = traci.lanearea.getLastStepVehicleNumber("e2det_NC_2")
-        i += 1
-        vehicle[i] = traci.lanearea.getLastStepVehicleNumber("e2det_NC_1")
-        i += 1
-        vehicle[i] = pedest[2]
-        i+=1
-        vehicle[i] = traci.lanearea.getLastStepVehicleNumber("e2det_WC_3")
-        i += 1
-        vehicle[i] = traci.lanearea.getLastStepVehicleNumber("e2det_WC_2")
-        i += 1
-        vehicle[i] = traci.lanearea.getLastStepVehicleNumber("e2det_WC_1")
-        i += 1
-        vehicle[i] = pedest[3]
-
+        vehicle=torch.zeros(12)
+        for idx, det in enumerate(DETECTORS):
+            vehicle[idx] = traci.lanearea.getLastStepHaltingNumber(det)
 
         #生成调度
         schedule=geneSchedule(step,pedest,vehicle)
