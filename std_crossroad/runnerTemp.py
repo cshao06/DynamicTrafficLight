@@ -42,8 +42,8 @@ PEDESTRIAN_GREEN_PHASE = 2
 TLSID = 'C'
 
 # pedestrian edges at the controlled intersection
-WALKINGAREAS = [':C_w0', ':C_w1', ':C_w2', ':C_w3', ':E_w0', ':N_w0', 'S_w0', 'W_w0']
-# :C_c0 north
+WALKINGAREAS = [':C_w0', ':C_w1', ':C_w2', ':C_w3']
+# :C_c0 north, ':E_w0', ':N_w0', 'S_w0', 'W_w0'
 CROSSINGS = [':C_c0', ':C_c1', ':C_c2', ':C_c3']
 
 
@@ -146,11 +146,13 @@ def run():
 
 def checkWaitingPersons():
     """check whether a person has requested to cross the street"""
-    people=[]
+
+    persons = torch.zeros(4)
+
     # check both sides of the crossing
-    index=0
+
     for edge in WALKINGAREAS:
-        people[index]=0
+        
         peds = traci.edge.getLastStepPersonIDs(edge)
         # check who is waiting at the crossing
         # we assume that pedestrians push the button upon
@@ -165,8 +167,8 @@ def checkWaitingPersons():
                 people[index]+=1
                 #return True
         index+=1
-    return people
-    #return False
+
+    return persons
 
 
 def get_options():
@@ -260,21 +262,15 @@ def geneSchedule(time, people, vehicle):
         # print(index)
         # print(prob)
 
-    newlight = torch.zeros(20)
+    traflight = torch.zeros(12)
     j = 0
     for i in range(16):
         if i != 3 and i != 7 and i != 11 and i != 15:
-            newlight[j] = light[i]
+            traflight[j] = light[i]
             j += 1
-        else:
-            newlight[j] = light[i]
-            j += 1
-            newlight[j] = light[i]
-            j += 1
-            # print(light)
-            # print (newlight)
+    traflight = traflight.permute(9,8,7,6,5,4,3,2,1,12,11,10)
     privilege += 1  # 时间片结束，所有状态优先级均上升
-    return newlight
+    return traflight
 
 
 
