@@ -121,12 +121,12 @@ def run():
         traffic = torch.cat((vehicle, pedest), 0)
         privilege = torch.zeros(16)
         #生成调度
-        schedule=geneSchedule(step,traffic,privilege)
-        # schedule=geneSchedule(step,pedest,vehicle)
-        #if step % 10 == 0:
-        #    schedule = torch.LongTensor([0,0,0,1,2,1,0,0,0,1,2,1,2,0,2,0])
-        #elif step % 10 == 5:
-        #    schedule = torch.LongTensor([1,2,1,0,0,0,1,2,1,0,0,0,0,2,0,2])
+        #schedule=geneSchedule(step,traffic,privilege)
+        
+        if step % 10 == 0:
+            schedule = torch.LongTensor([0,0,0,1,2,1,0,0,0,1,2,1,2,0,2,0])
+        elif step % 10 == 5:
+            schedule = torch.LongTensor([1,2,1,0,0,0,1,2,1,0,0,0,0,2,0,2])
 
         setTrafficlight(schedule)
 
