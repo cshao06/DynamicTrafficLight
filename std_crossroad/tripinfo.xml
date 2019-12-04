@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- generated on Tue 03 Dec 2019 09:19:25 PM EST by Eclipse SUMO GUI Version 1.3.1
+<!-- generated on Tue Dec  3 21:24:57 2019 by Eclipse SUMO GUI Version 1.3.1
 <configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/sumoConfiguration.xsd">
 
     <input>
@@ -19,7 +19,7 @@
     </report>
 
     <traci_server>
-        <remote-port value="52959"/>
+        <remote-port value="54227"/>
     </traci_server>
 
     <gui_only>
@@ -71,13 +71,3 @@
     <tripinfo id="28" depart="33.00" departLane="EC_1" departPos="5.10" departSpeed="0.00" departDelay="5.00" arrival="88.00" arrivalLane="CS_3" arrivalPos="86.40" arrivalSpeed="15.62" duration="55.00" routeLength="192.21" waitingTime="23.00" waitingCount="3" stopTime="0.00" timeLoss="42.04" rerouteNo="0" devices="tripinfo_28 routing_28" vType="DEFAULT_VEHTYPE" speedFactor="1.18" vaporized=""/>
     <tripinfo id="25" depart="29.00" departLane="EC_1" departPos="5.10" departSpeed="0.00" departDelay="3.00" arrival="89.00" arrivalLane="CE_2" arrivalPos="86.40" arrivalSpeed="11.97" duration="60.00" routeLength="399.57" waitingTime="10.00" waitingCount="3" stopTime="0.00" timeLoss="29.05" rerouteNo="1" devices="tripinfo_25 routing_25" vType="DEFAULT_VEHTYPE" speedFactor="0.95" vaporized=""/>
     <tripinfo id="22" depart="24.00" departLane="WC_1" departPos="5.10" departSpeed="0.00" departDelay="0.00" arrival="91.00" arrivalLane="CW_2" arrivalPos="86.40" arrivalSpeed="10.87" duration="67.00" routeLength="399.57" waitingTime="3.00" waitingCount="1" stopTime="0.00" timeLoss="30.17" rerouteNo="1" devices="tripinfo_22 routing_22" vType="DEFAULT_VEHTYPE" speedFactor="0.83" vaporized=""/>
-    <personinfo id="ped3" depart="9.00" type="DEFAULT_PEDTYPE">
-        <walk depart="9.00" departPos="36.73" arrival="113.00" arrivalPos="49.27" duration="104.00" routeLength="134.89" timeLoss="21.67" maxSpeed="1.64"/>
-    </personinfo>
-    <personinfo id="ped4" depart="11.00" type="DEFAULT_PEDTYPE">
-        <walk depart="11.00" departPos="49.56" arrival="115.00" arrivalPos="75.50" duration="104.00" routeLength="116.58" timeLoss="10.80" maxSpeed="1.25"/>
-    </personinfo>
-    <personinfo id="ped6" depart="25.00" type="DEFAULT_PEDTYPE">
-        <walk depart="25.00" departPos="28.12" arrival="155.00" arrivalPos="67.48" duration="130.00" routeLength="166.56" timeLoss="14.44" maxSpeed="1.44"/>
-    </personinfo>
-</tripinfos>

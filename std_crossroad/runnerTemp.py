@@ -309,11 +309,12 @@ def geneSchedule(penalty):
     priority[index] = 0
 
     prob = prob * state_prob[index]  # 求prob空间
+    print('prob',prob)
     nol = state_nol[index]
     # print(index)
     # print(prob)
     # 调度可行域
-    print(light)
+    print('light',light)
     while (prob.sum() != 0):
         # min_p = 9999
         max_p = 0
@@ -346,9 +347,10 @@ def geneSchedule(penalty):
         state_temp[state_temp < 0] = 0
         prob = prob * state_temp  #更新prob空间
         nol = nol * state_nol[index]
+        print('prob',prob)
         # print(index)
         # print(prob)
-        print(light)
+        print('light',light)
 
     vlight = torch.zeros(12)
     plight = torch.zeros(4)
