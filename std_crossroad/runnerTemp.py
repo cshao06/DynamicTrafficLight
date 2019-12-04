@@ -86,16 +86,21 @@ DETECTORS = ["e2det_SC_3", "e2det_SC_2", "e2det_SC_1", "e2det_EC_3", "e2det_EC_2
 #     traci.close()
 
 TLS_ID = '0'
+GIDX = [1, 4, 7, 10, 12, 13, 14, 15]
 
 def setTrafficlight(schedule):
     light_str = ''
-    for light in schedule:
+    for idx, light in enumerate(schedule):
         if light == 0:
             light_str += 'r'
         elif light == 1:
-            light_str += 'g'
+            if idx in GIDX:
+                light_str += 'G'
+            else:
+                light_str += 'g'
         else:
             light_str += 'G'
+    print('light state: ', light_str)
     traci.trafficlight.setRedYellowGreenState(TLS_ID, light_str)
 
 def run():
@@ -290,7 +295,7 @@ def geneSchedule(penalty, privilege):
     privilege[index] = 0
 
     prob = prob * state_prob[index]  # 求prob空间
-    nol = state_nol[index] 
+    nol = state_nol[index]
     # print(index)
     # print(prob)
     # 调度可行域
