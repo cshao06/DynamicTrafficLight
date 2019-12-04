@@ -291,8 +291,11 @@ def geneSchedule(penalty):
   #获取当前loss最低对象
     penalty_tensor = penalty.reshape(1, -1).repeat(16, 1)
     loss = penalty_tensor * state_copy
-    loss_sum = loss.sum(0)
-    index_loss = [0, 1, 2, 4, 5, 6, 8, 9, 10, 12, 13, 14]
+    print('lossb: ', loss)
+    loss_sum = loss.sum(1)
+    print('lossa: ', loss_sum)
+    # index_loss = [0, 1, 2, 4, 5, 6, 8, 9, 10, 12, 13, 14]
+    index_loss = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
     loss_line = loss_sum[index_loss]
     min_mum  = min(loss_line)
     # min_p = 9999
@@ -309,12 +312,13 @@ def geneSchedule(penalty):
     priority[index] = 0
 
     prob = prob * state_prob[index]  # 求prob空间
-    print('prob',prob)
     nol = state_nol[index]
     # print(index)
     # print(prob)
     # 调度可行域
     print('light',light)
+    print('prob',prob)
+    print()
     while (prob.sum() != 0):
         # min_p = 9999
         max_p = 0
@@ -329,8 +333,9 @@ def geneSchedule(penalty):
                 noloss = 1-nol_temp
         #1冲突， 0不冲突+本身
                 loss = (noloss * penalty).sum()
+                print((i, loss))
                 if loss < min_loss:
-                    min_loss == loss
+                    min_loss = loss
                     index = i
                     # min_p = priority[i]
                     max_p = priority[i]
@@ -342,15 +347,16 @@ def geneSchedule(penalty):
                         max_p = priority[i]
         light[index] = 1
         priority[index] = 0
-        state_temp = state[index]
-        state_temp -= 1
-        state_temp[state_temp < 0] = 0
-        prob = prob * state_temp  #更新prob空间
+        # state_temp = state_prob[index]
+        # state_temp -= 1
+        # state_temp[state_temp < 0] = 0
+        prob = prob * state_prob[index]#更新prob空间
         nol = nol * state_nol[index]
-        print('prob',prob)
         # print(index)
         # print(prob)
         print('light',light)
+        print('prob',prob)
+        print()
 
     vlight = torch.zeros(12)
     plight = torch.zeros(4)
