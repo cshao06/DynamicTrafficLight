@@ -141,7 +141,7 @@ def run():
         print('penalty:', penalty.int().data)
 
         schedule=geneSchedule(penalty_shift,privilege)
-        
+
         #if step % 10 == 0:
         #    schedule = torch.LongTensor([0,0,0,1,2,1,0,0,0,1,2,1,2,0,2,0])
         #elif step % 10 == 5:
@@ -174,17 +174,24 @@ def checkWaitingPersons():
     for edge in WALKINGAREAS:
         index = 0
         peds = traci.edge.getLastStepPersonIDs(edge)
+        print(peds)
         # check who is waiting at the crossing
         # we assume that pedestrians push the button upon
         # standing still for 1s
         for ped in peds:
             peopleWaitingTime+=traci.person.getWaitingTime(ped)
-            if (traci.person.getWaitingTime(ped) == 1 and
-                    traci.person.getNextEdge(ped) == CROSSINGS[index]):
-                    persons[index] = 1
-            elif(traci.person.getWaitingTime(ped) == 1 and
-                    traci.person.getNextEdge(ped) == CROSSINGS[index + 1]):
-                    persons[index+1] = 1
+            # traci.person.getWaitingTime(ped)
+
+            # if (traci.person.getWaitingTime(ped) == 1 and
+            #         traci.person.getNextEdge(ped) == CROSSINGS[index]):
+            #         persons[index] = 1
+            # elif(traci.person.getWaitingTime(ped) == 1 and
+            #         traci.person.getNextEdge(ped) == CROSSINGS[index + 1]):
+            #         persons[index+1] = 1
+
+            if (traci.person.getNextEdge(ped) in CROSSINGS):
+                    persons[CROSSINGS.index(traci.person.getNextEdge(ped))] = 1
+
                 # numWaiting = traci.trafficlight.getServedPersonCount(TLSID, PEDESTRIAN_GREEN_PHASE)
                 # print("%s: pedestrian %s pushes the button (waiting: %s)" %
                 #       (traci.simulation.getTime(), ped, numWaiting))
