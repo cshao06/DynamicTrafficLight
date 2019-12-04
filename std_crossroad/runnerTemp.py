@@ -14,6 +14,8 @@ import optparse
 import subprocess
 import torch
 import numpy as np
+import xml.dom.minidom as xmldom
+
 
 # the directory in which this script resides
 THISDIR = os.path.dirname(__file__)
@@ -47,6 +49,7 @@ WALKINGAREAS = [':C_w3', ':C_w2', ':C_w1', ':C_w0']
 CROSSINGS = [':C_c2', ':C_c1', ':C_c0', ':C_c3']
 
 DETECTORS = ["e2det_SC_3", "e2det_SC_2", "e2det_SC_1", "e2det_EC_3", "e2det_EC_2", "e2det_EC_1", "e2det_NC_3", "e2det_NC_2", "e2det_NC_1", "e2det_WC_3", "e2det_WC_2", "e2det_WC_1"]
+
 
 # def run():
 #     """execute the TraCI control loop"""
@@ -114,7 +117,7 @@ def run():
                 #traci.trafficlight.setPhase("0", 2)
 
         #获取等待行人
-        pedest=checkWaitingPersons()
+        peoWaitTime,pedest=checkWaitingPersons()
         print('pedest:', pedest.int().data)
         #获取等待车辆
         vehicle=torch.zeros(12)
@@ -147,12 +150,18 @@ def run():
 
 
 
+
 def checkWaitingPersons():
     """check whether a person has requested to cross the street"""
 # pedestrian edges at the controlled intersection
 #ALKINGAREAS = [':C_w3', ':C_w2', ':C_w1', ':C_w0']
 # :C_c0 north, ':E_w0', ':N_w0', 'S_w0', 'W_w0'
 #CROSSINGS = [':C_c2', ':C_c1', ':C_c0', ':C_c3']
+
+
+    # 统计行人等待时间
+    peopleWaitingTime = 0
+
     persons = torch.zeros(4)
 
     # check both sides of the crossing
@@ -164,6 +173,7 @@ def checkWaitingPersons():
         # we assume that pedestrians push the button upon
         # standing still for 1s
         for ped in peds:
+            peopleWaitingTime+=traci.person.getWaitingTime(ped)
             if (traci.person.getWaitingTime(ped) == 1 and
                     traci.person.getNextEdge(ped) == CROSSINGS[index]):
                     persons[index] = 1
@@ -177,17 +187,8 @@ def checkWaitingPersons():
                 #return True
         index+=1
 
+    return peopleWaitingTime,persons
 
-    return persons
-
-
-def get_options():
-    """define options for this script and interpret the command line"""
-    optParser = optparse.OptionParser()
-    optParser.add_option("--nogui", action="store_true",
-                         default=False, help="run the commandline version of sumo")
-    options, args = optParser.parse_args()
-    return options
 
 # 计算时间片内平均等待车辆和行人，行人权重为车辆的1.2倍，计算车辆的平均通过速度
 def averageWaiting(DETECTORS, people):
@@ -203,7 +204,38 @@ def averageWaiting(DETECTORS, people):
     averageWait=veh_num+1.5*ped_num
     averageSpeed=speed/len(DETECTORS)
 
-    return averageWait,averageSpeed
+    return averageWait,averageSpeed,ped_num
+
+
+#计算10s内行人和车辆的总等待时间
+def totalWaiting():
+    peo_time,_=checkWaitingPersons()
+    veh_time=extractVeh()
+    return peo_time+veh_time
+
+
+#解析tripinfo获取车辆等待时间
+def extractVeh():
+    vehWaitSum=0
+    xml_filepath = os.path.abspath("./tripinfo.xml")
+    dom_obj = xmldom.parse(xml_filepath)
+    element_obj = dom_obj.documentElement
+    sub_element_obj = element_obj.getElementsByTagName("tripinfo")
+
+    for i in range(len(sub_element_obj)):
+        vehWaitSum += float(sub_element_obj[i].getAttribute("waitingTime"))
+
+    return vehWaitSum
+
+
+
+def get_options():
+    """define options for this script and interpret the command line"""
+    optParser = optparse.OptionParser()
+    optParser.add_option("--nogui", action="store_true",
+                         default=False, help="run the commandline version of sumo")
+    options, args = optParser.parse_args()
+    return options
 
 
 
@@ -356,3 +388,5 @@ if __name__ == "__main__":
     # traci.start([sumoBinary, '-c', os.path.join('data', 'std_crossroad.sumocfg')])
     traci.start([sumoBinary, '-c', os.path.join('std_crossroad.sumocfg'), '--tripinfo-output', 'tripinfo.xml'])
     run()
+    TotalWaitingTime=0
+    TotalWaitingTime=totalWaiting()
