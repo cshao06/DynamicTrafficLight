@@ -99,7 +99,8 @@ def run():
     """execute the TraCI control loop"""
     step = 0
     # we start with phase 2 where EW has green
-    traci.trafficlight.setPhase("0", 2)
+    #traci.trafficlight.setPhase("0", 2)
+    penalty = torch.zeros(16)
     while traci.simulation.getMinExpectedNumber() > 0:
         traci.simulationStep()
         #if traci.trafficlight.getPhase("0") == 2:
@@ -114,19 +115,29 @@ def run():
 
         #获取等待行人
         pedest=checkWaitingPersons()
+        print('pedest:', pedest.int().data)
         #获取等待车辆
         vehicle=torch.zeros(12)
         for idx, det in enumerate(DETECTORS):
-            vehicle[idx] = traci.lanearea.getLastStepHaltingNumber(det)
+            vehicle[idx] = (traci.lanearea.getLastStepHaltingNumber(det) > 0)
+        #vehicle *= 100
+        print('vehicle:', vehicle.int().data)
         traffic = torch.cat((vehicle, pedest), 0)
+        index_t = [0, 1, 2, 12, 3, 4, 5, 13, 6, 7, 8, 14, 9, 10, 11, 15]
+        traffic = traffic[index_t]
+        print('traffic:', traffic.int().data)
         privilege = torch.zeros(16)
+        penalty = traffic * penalty + traffic
+        penalty_shift = 2*penalty
         #生成调度
-        #schedule=geneSchedule(step,traffic,privilege)
+        print('penalty:', penalty.int().data)
+
+        schedule=geneSchedule(penalty_shift,privilege)
         
-        if step % 10 == 0:
-            schedule = torch.LongTensor([0,0,0,1,2,1,0,0,0,1,2,1,2,0,2,0])
-        elif step % 10 == 5:
-            schedule = torch.LongTensor([1,2,1,0,0,0,1,2,1,0,0,0,0,2,0,2])
+        #if step % 10 == 0:
+        #    schedule = torch.LongTensor([0,0,0,1,2,1,0,0,0,1,2,1,2,0,2,0])
+        #elif step % 10 == 5:
+        #    schedule = torch.LongTensor([1,2,1,0,0,0,1,2,1,0,0,0,0,2,0,2])
 
         setTrafficlight(schedule)
 
@@ -197,10 +208,10 @@ def averageWaiting(DETECTORS, people):
 
 
 # 生成调度face
-def geneSchedule(time, penalty, privilege):
-    # 初始化，可行置1，不可行置0，本身置1
-    line0 = [-1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1]
-    line1 = [1, -1, 1, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1]
+def geneSchedule(penalty, privilege):
+  # 初始化，可行置1，不可行置0，本身置1
+    line0 = [-1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 1, 0]
+    line1 = [1, -1, 1, 0, 0, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1]
     line2 = [1, 1, -1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1]
     line3 = [0, 0, 0, -1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1]
     state_temp = torch.FloatTensor([line0, line1, line2, line3])
@@ -211,33 +222,33 @@ def geneSchedule(time, penalty, privilege):
             bias = i // 4
             line = i % 4
             state[i][j] = state_temp[line][(j + 12 * bias) % 16]
-
-    #0冲突， 1不冲突， -1本身
+  #0冲突， 1不冲突， -1本身
+    state_prob = state.clone()
+    state_prob[state_prob < 0] = 0
+  #0冲突+本身， 1不冲突， 
     state = state + 1
-
-    #1冲突， 2不冲突， 0本身
-    # print(state)
-    light = torch.zeros(16)
-    #根据时间片初始化penalty
-    penalty = torch.rand(16, 16) * time
-    penalty = penalty.to(int)
-    #print('penalty',penalty.size())
-
+  #1冲突， 2不冲突， 0本身
     state_copy = state.clone()
     state_copy[state_copy != 1] = 0
-    #1冲突， 0冲突
-    #print('state_copy',state_copy.size())
-    #获取当前loss最低对象
-    loss = penalty * state_copy
-    print('loss',loss.size())
-    loss_line = loss.sum(0)
-    print('loss_line',loss_line.size())
+  #1冲突， 0不冲突+本身
+    state_nol = 1 - state_copy
+  #0冲突， 1不冲突+本身
+
+    light = torch.zeros(16)
+  #print('state_copy',state_copy.size())
+
+
+
+  #获取当前loss最低对象
+    penalty_tensor = penalty.reshape(1, -1).repeat(16, 1)
+    loss = penalty_tensor * state_copy
+    loss_sum = loss.sum(0)
+    index_loss = [0, 1, 2, 4, 5, 6, 8, 9, 10, 12, 13, 14]
+    loss_line = loss_sum[index_loss]
     min_mum  = min(loss_line)
-    list_temp = []
     min_p = 9999
     index = -1
     prob = torch.ones(16)
-
     for i in range(loss_line.shape[0]):
         if loss_line[i] == min_mum:
             if privilege[i] < min_p:
@@ -245,31 +256,32 @@ def geneSchedule(time, penalty, privilege):
                 index = i
     light[index] = 1
     privilege[index] = 0
-    state_temp = state[index]
-    state_temp -= 1
-    state_temp[state_temp < 0] = 0
-    prob = prob * state_temp  # 求prob空间
+
+    prob = prob * state_prob[index]  # 求prob空间
+    nol = state_nol[index] 
     # print(index)
     # print(prob)
     # 调度可行域
-    loss_arr = torch.zeros(16)
     while (prob.sum() != 0):
-        loss_arr[index] = 9999
-        list_temp = []
         min_p = 9999
         min_loss = 9999
         index = -1
 
-        # 获取可行域下一个执行对象index
+    #获取可行域下一个执行对象index
         for i in range(16):
             if prob[i] > 0:
-                if loss_arr[i] < min_loss:
-                    min_loss == loss_arr[i]
+                nol_temp = nol * state_nol[i]
+        #0冲突， 1不冲突+本身
+                noloss = 1-nol_temp
+        #1冲突， 0不冲突+本身
+                loss = (noloss * penalty).sum()
+                if loss < min_loss:
+                    min_loss == loss
                     index = i
                     min_p = privilege[i]
-                elif loss_arr[i] == min_loss:
+                elif loss == min_loss:
                     if privilege[i] < min_p:
-                        min_loss = loss_arr[i]
+                        min_loss = loss
                         index = i
                         min_p = privilege[i]
         light[index] = 1
@@ -277,9 +289,11 @@ def geneSchedule(time, penalty, privilege):
         state_temp = state[index]
         state_temp -= 1
         state_temp[state_temp < 0] = 0
-        prob = prob * state_temp  # 更新prob空间
+        prob = prob * state_temp  #更新prob空间
+        nol = nol * state_nol[index]
         # print(index)
         # print(prob)
+    #print(light)
 
     vlight = torch.zeros(12)
     plight = torch.zeros(4)
@@ -291,9 +305,14 @@ def geneSchedule(time, penalty, privilege):
             j += 1
         else:
             plight[k] = light[i]
-            k+=1
-    vlight = vlight.permute(9,8,7,6,5,4,3,2,1,12,11,10)
-    plight = plight.permute(2,1,0,3)
+            k += 1
+    #print(vlight)
+    #print(plight)
+    index_v = [8,7,6,5,4,3,2,1,0,11,10,9]
+    index_p = [2,1,0,3]
+    vlight = vlight[index_v]
+    plight = plight[index_p]
+
     traflight = torch.cat((vlight, plight),0)
     privilege += 1  # 时间片结束，所有状态优先级均上升
     return traflight
