@@ -16,6 +16,7 @@ import torch
 import numpy as np
 import xml.dom.minidom as xmldom
 
+priority = None
 
 # the directory in which this script resides
 THISDIR = os.path.dirname(__file__)
@@ -105,11 +106,16 @@ def setTrafficlight(schedule):
 
 def run():
     """execute the TraCI control loop"""
+    global priority
     step = 0
     # we start with phase 2 where EW has green
     #traci.trafficlight.setPhase("0", 2)
     penalty = torch.zeros(16)
+    priority = torch.zeros(16)
     while traci.simulation.getMinExpectedNumber() > 0:
+        # if step % 10 != 0:
+        #     step += 1
+        #     continue
         traci.simulationStep()
         #if traci.trafficlight.getPhase("0") == 2:
             # we are not already switching
@@ -134,13 +140,12 @@ def run():
         index_t = [0, 1, 2, 12, 3, 4, 5, 13, 6, 7, 8, 14, 9, 10, 11, 15]
         traffic = traffic[index_t]
         print('traffic:', traffic.int().data)
-        privilege = torch.zeros(16)
         penalty = traffic * penalty + traffic
         penalty_shift = 2*penalty
         #生成调度
         print('penalty:', penalty.int().data)
 
-        schedule=geneSchedule(penalty_shift,privilege)
+        schedule=geneSchedule(penalty_shift)
 
         #if step % 10 == 0:
         #    schedule = torch.LongTensor([0,0,0,1,2,1,0,0,0,1,2,1,2,0,2,0])
@@ -174,7 +179,7 @@ def checkWaitingPersons():
     for edge in WALKINGAREAS:
         index = 0
         peds = traci.edge.getLastStepPersonIDs(edge)
-        print(peds)
+        # print(peds)
         # check who is waiting at the crossing
         # we assume that pedestrians push the button upon
         # standing still for 1s
@@ -250,9 +255,9 @@ def get_options():
     return options
 
 
-
 # 生成调度face
-def geneSchedule(penalty, privilege):
+def geneSchedule(penalty):
+    global priority
   # 初始化，可行置1，不可行置0，本身置1
     line0 = [-1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 1, 0]
     line1 = [1, -1, 1, 0, 0, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1]
@@ -290,24 +295,28 @@ def geneSchedule(penalty, privilege):
     index_loss = [0, 1, 2, 4, 5, 6, 8, 9, 10, 12, 13, 14]
     loss_line = loss_sum[index_loss]
     min_mum  = min(loss_line)
-    min_p = 9999
+    # min_p = 9999
+    max_p = 0
     index = -1
     prob = torch.ones(16)
     for i in range(loss_line.shape[0]):
         if loss_line[i] == min_mum:
-            if privilege[i] < min_p:
-                min_p = privilege[i]
+            if priority[i] > max_p:
+                # min_p = priority[i]
+                max_p = priority[i]
                 index = i
     light[index] = 1
-    privilege[index] = 0
+    priority[index] = 0
 
     prob = prob * state_prob[index]  # 求prob空间
     nol = state_nol[index]
     # print(index)
     # print(prob)
     # 调度可行域
+    print(light)
     while (prob.sum() != 0):
-        min_p = 9999
+        # min_p = 9999
+        max_p = 0
         min_loss = 9999
         index = -1
 
@@ -322,14 +331,16 @@ def geneSchedule(penalty, privilege):
                 if loss < min_loss:
                     min_loss == loss
                     index = i
-                    min_p = privilege[i]
+                    # min_p = priority[i]
+                    max_p = priority[i]
                 elif loss == min_loss:
-                    if privilege[i] < min_p:
+                    if priority[i] > max_p:
                         min_loss = loss
                         index = i
-                        min_p = privilege[i]
+                        # min_p = priority[i]
+                        max_p = priority[i]
         light[index] = 1
-        privilege[index] = 0
+        priority[index] = 0
         state_temp = state[index]
         state_temp -= 1
         state_temp[state_temp < 0] = 0
@@ -337,7 +348,7 @@ def geneSchedule(penalty, privilege):
         nol = nol * state_nol[index]
         # print(index)
         # print(prob)
-    #print(light)
+        print(light)
 
     vlight = torch.zeros(12)
     plight = torch.zeros(4)
@@ -358,7 +369,8 @@ def geneSchedule(penalty, privilege):
     plight = plight[index_p]
 
     traflight = torch.cat((vlight, plight),0)
-    privilege += 1  # 时间片结束，所有状态优先级均上升
+    print('priority before increment: ', priority)
+    priority += 1  # 时间片结束，所有状态优先级均上升
     return traflight
 
 
@@ -388,12 +400,13 @@ if __name__ == "__main__":
         '--output-trip-file', 'std_crossroad.ped.xml',
         '--seed', '42',  # make runs reproducible
         '--pedestrians',
+        '--end', '30',
         '--prefix', 'ped',
         # prevent trips that start and end on the same edge
         '--min-distance', '1',
         '--trip-attributes', 'departPos="random" arrivalPos="random"',
-        '--binomial', '4',
-        '--period', '35']))
+        '--binomial', '1',
+        '--period', '5']))
 
     # this is the normal way of using traci. sumo is started as a
     # subprocess and then the python script connects and runs

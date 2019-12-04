@@ -548,4 +548,5 @@
         <legend showSizeLegend="1"/>
     </scheme>
     <delay value="50.00"/>
+    <viewport zoom="500" x="0" y="0"/>
 </viewsettings>
