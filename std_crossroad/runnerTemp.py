@@ -112,6 +112,7 @@ def run():
     #traci.trafficlight.setPhase("0", 2)
     penalty = torch.zeros(16)
     priority = torch.zeros(16)
+    light = torch.zeros(16)
     while traci.simulation.getMinExpectedNumber() > 0:
         # if step % 10 != 0:
         #     step += 1
@@ -126,27 +127,33 @@ def run():
             #else:
                 # otherwise try to keep green for EW
                 #traci.trafficlight.setPhase("0", 2)
-        light = torch.zeros(16)
+        if (step % 5 == 0):
         #获取等待行人
-        peoWaitTime,pedest=checkWaitingPersons()
-        print('pedest:', pedest.int().data)
+            peoWaitTime,pedest=checkWaitingPersons()
+            print('pedest:', pedest.int().data)
         #获取等待车辆
-        vehicle=torch.zeros(12)
-        for idx, det in enumerate(DETECTORS):
-            vehicle[idx] = (traci.lanearea.getLastStepHaltingNumber(det) > 0)
+            vehicle=torch.zeros(12)
+            for idx, det in enumerate(DETECTORS):
+                vehicle[idx] = (traci.lanearea.getLastStepHaltingNumber(det) > 0)
         #vehicle *= 100
-        print('vehicle:', vehicle.int().data)
-        traffic = torch.cat((vehicle, pedest*1), 0)
-        index_t = [0, 1, 2, 12, 3, 4, 5, 13, 6, 7, 8, 14, 9, 10, 11, 15]
-        traffic = traffic[index_t]
-        print('traffic:', traffic.int().data)
-        penalty = traffic * penalty + traffic
-        penal_lift = [penalty[light < 1] * 2, penalty[light < 1] ** 2, torch.exp(penalty)]
-        penalty_shift = penal_lift[0]
-        #生成调度
-        print('penalty:', penalty.int().data)
+            print('vehicle:', vehicle.int().data)
+            traffic = torch.cat((vehicle, pedest*1), 0)
+            index_t = [0, 1, 2, 12, 3, 4, 5, 13, 6, 7, 8, 14, 9, 10, 11, 15]
+            traffic = traffic[index_t]
+            print('traffic:', traffic.int().data)
+            penalty = traffic * penalty + traffic
+            print('light:',light)
+            light_shift = 1 - light
+            penalty = penalty * light_shift + 1
 
-        schedule, light = geneSchedule(penalty_shift)
+            penal_lift = [penalty * 2, penalty  ** 2, torch.exp(penalty)]
+
+            penalty_shift = penal_lift[0]
+
+
+        #生成调度
+            print('penalty:', penalty_shift)
+            schedule, light = geneSchedule(penalty_shift)
 
         #if step % 10 == 0:
         #    schedule = torch.LongTensor([0,0,0,1,2,1,0,0,0,1,2,1,2,0,2,0])
@@ -288,12 +295,12 @@ def geneSchedule(penalty):
   #print('state_copy',state_copy.size())
 
 
-
+    print(penalty.size())
   #获取当前loss最低对象
     penalty_tensor = penalty.reshape(1, -1).repeat(16, 1)
     loss = penalty_tensor * state_copy
     print('lossb: ', loss)
-    loss_sum = loss.sum(1)
+    loss_sum = loss.sum(1) - penalty
     print('lossa: ', loss_sum)
     # index_loss = [0, 1, 2, 4, 5, 6, 8, 9, 10, 12, 13, 14]
     index_loss = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
@@ -333,7 +340,7 @@ def geneSchedule(penalty):
         #0冲突， 1不冲突+本身
                 noloss = 1-nol_temp
         #1冲突， 0不冲突+本身
-                loss = (noloss * penalty).sum()
+                loss = (noloss * penalty * prob).sum() - penalty[i]
                 print((i, loss))
                 if loss < min_loss:
                     min_loss = loss
