@@ -136,16 +136,16 @@ def run():
             vehicle[idx] = (traci.lanearea.getLastStepHaltingNumber(det) > 0)
         #vehicle *= 100
         print('vehicle:', vehicle.int().data)
-        traffic = torch.cat((vehicle, pedest), 0)
+        traffic = torch.cat((vehicle, pedest*1), 0)
         index_t = [0, 1, 2, 12, 3, 4, 5, 13, 6, 7, 8, 14, 9, 10, 11, 15]
         traffic = traffic[index_t]
         print('traffic:', traffic.int().data)
         penalty = traffic * penalty + traffic
-        penalty_shift = 2*penalty
+        penalty_shift = penal_lift[0]
         #生成调度
         print('penalty:', penalty.int().data)
 
-        schedule=geneSchedule(penalty_shift)
+        schedule， light=geneSchedule(penalty_shift)
 
         #if step % 10 == 0:
         #    schedule = torch.LongTensor([0,0,0,1,2,1,0,0,0,1,2,1,2,0,2,0])
@@ -379,7 +379,7 @@ def geneSchedule(penalty):
     traflight = torch.cat((vlight, plight),0)
     print('priority before increment: ', priority)
     priority += 1  # 时间片结束，所有状态优先级均上升
-    return traflight
+    return traflight， light
 
 
 
