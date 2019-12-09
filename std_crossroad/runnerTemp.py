@@ -261,6 +261,16 @@ def get_options():
                          default=False, help="run the commandline version of sumo")
     optParser.add_option("-d", "--default", action="store_true",
                          default=False, help="Run the default fixed length traffic light")
+    optParser.add_option("-e", "--end-time", action="store",
+                         type="string", dest="end_time", default="300", help="Simulation end time")
+    optParser.add_option("--ped-binomial", action="store",
+                         type="string", dest="ped_binomial", default="1", help="Pedestrian binomial")
+    optParser.add_option("--ped-period", action="store",
+                         type="string", dest="ped_period", default="3.6", help="Pedestrian period")
+    optParser.add_option("--veh-binomial", action="store",
+                         type="string", dest="veh_binomial", default="1", help="Vehicle binomial")
+    optParser.add_option("--veh-period", action="store",
+                         type="string", dest="veh_period", default="3.6", help="Vehicle period")
     optParser.add_option("-c", "--sumocfg", action="store",
                          type="string", default="std_crossroad.sumocfg", dest="sumocfg", help="The sumocfg file")
     options, args = optParser.parse_args()
@@ -438,13 +448,13 @@ if __name__ == "__main__":
         '--net-file', net,
         '--output-trip-file', 'std_crossroad.rou.xml',
         # '--seed', '42',  # make runs reproducible
-        '--end', '60',
+        '--end', options.end_time,
         # '--prefix', 'ped',
         # prevent trips that start and end on the same edge
         '--min-distance', '1',
         '--trip-attributes', 'departPos="random" arrivalPos="random"',
-        '--binomial', '3',
-        '--period', '0.8']))
+        '--binomial', options.veh_binomial,
+        '--period', options.veh_period]))
 
     # generate the pedestrians for this simulation
     randomTrips.main(randomTrips.get_options([
@@ -452,13 +462,13 @@ if __name__ == "__main__":
         '--output-trip-file', 'std_crossroad.ped.xml',
         # '--seed', '42',  # make runs reproducible
         '--pedestrians',
-        '--end', '60',
+        '--end', options.end_time,
         '--prefix', 'ped',
         # prevent trips that start and end on the same edge
         '--min-distance', '1',
         '--trip-attributes', 'departPos="random" arrivalPos="random"',
-        '--binomial', '1',
-        '--period', '5']))
+        '--binomial', options.ped_binomial,
+        '--period', options.ped_period]))
 
     # this is the normal way of using traci. sumo is started as a
     # subprocess and then the python script connects and runs
