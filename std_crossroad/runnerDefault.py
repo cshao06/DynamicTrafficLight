@@ -51,41 +51,6 @@ CROSSINGS = [':C_c2', ':C_c1', ':C_c0', ':C_c3']
 
 DETECTORS = ["e2det_SC_3", "e2det_SC_2", "e2det_SC_1", "e2det_EC_3", "e2det_EC_2", "e2det_EC_1", "e2det_NC_3", "e2det_NC_2", "e2det_NC_1", "e2det_WC_3", "e2det_WC_2", "e2det_WC_1"]
 
-
-# def run():
-#     """execute the TraCI control loop"""
-#     # track the duration for which the green phase of the vehicles has been
-#     # active
-#     greenTimeSoFar = 0
-
-#     # whether the pedestrian button has been pressed
-#     activeRequest = False
-
-#     # main loop. do something every simulation step until no more vehicles are
-#     # loaded or running
-#     while traci.simulation.getMinExpectedNumber() > 0:
-#         traci.simulationStep()
-
-#         # decide wether there is a waiting pedestrian and switch if the green
-#         # phase for the vehicles exceeds its minimum duration
-#         if not activeRequest:
-#             activeRequest = checkWaitingPersons()
-#         if traci.trafficlight.getPhase(TLSID) == VEHICLE_GREEN_PHASE:
-#             greenTimeSoFar += 1
-#             if greenTimeSoFar > MIN_GREEN_TIME:
-#                 # check whether someone has pushed the button
-
-#                 if activeRequest:
-#                     # switch to the next phase
-#                     traci.trafficlight.setPhase(
-#                         TLSID, VEHICLE_GREEN_PHASE + 1)
-#                     # reset state
-#                     activeRequest = False
-#                     greenTimeSoFar = 0
-
-#     sys.stdout.flush()
-#     traci.close()
-
 TLS_ID = '0'
 GIDX = [1, 4, 7, 10, 12, 13, 14, 15]
 
@@ -106,60 +71,14 @@ def setTrafficlight(schedule):
 
 def run():
     """execute the TraCI control loop"""
-    global priority
     step = 0
     # we start with phase 2 where EW has green
-    #traci.trafficlight.setPhase("0", 2)
-    penalty = torch.zeros(16)
-    priority = torch.zeros(16)
+    traci.trafficlight.setPhase("0", 2)
     while traci.simulation.getMinExpectedNumber() > 0:
-        # if step % 10 != 0:
-        #     step += 1
-        #     continue
         traci.simulationStep()
-        #if traci.trafficlight.getPhase("0") == 2:
-            # we are not already switching
-            # if traci.inductionloop.getLastStepVehicleNumber("0") > 0:
-            #if #traci.lanearea.getLastStepVehicleNumber("TLS0_my_program_E2CollectorOn_2i_0") > 0:
-                # there is a vehicle from the north, switch
-                #traci.trafficlight.setPhase("0", 3)
-            #else:
-                # otherwise try to keep green for EW
-                #traci.trafficlight.setPhase("0", 2)
-
-        #获取等待行人
-        peoWaitTime,pedest=checkWaitingPersons()
-        print('pedest:', pedest.int().data)
-        #获取等待车辆
-        vehicle=torch.zeros(12)
-        for idx, det in enumerate(DETECTORS):
-            vehicle[idx] = (traci.lanearea.getLastStepHaltingNumber(det) > 0)
-        #vehicle *= 100
-        print('vehicle:', vehicle.int().data)
-        traffic = torch.cat((vehicle, pedest*1), 0)
-        index_t = [0, 1, 2, 12, 3, 4, 5, 13, 6, 7, 8, 14, 9, 10, 11, 15]
-        traffic = traffic[index_t]
-        print('traffic:', traffic.int().data)
-        penalty = traffic * penalty + traffic
-        penalty_shift = penal_lift[0]
-        #生成调度
-        print('penalty:', penalty.int().data)
-
-        schedule， light=geneSchedule(penalty_shift)
-
-        #if step % 10 == 0:
-        #    schedule = torch.LongTensor([0,0,0,1,2,1,0,0,0,1,2,1,2,0,2,0])
-        #elif step % 10 == 5:
-        #    schedule = torch.LongTensor([1,2,1,0,0,0,1,2,1,0,0,0,0,2,0,2])
-
-        setTrafficlight(schedule)
-
         step += 1
     traci.close()
     sys.stdout.flush()
-
-
-
 
 def checkWaitingPersons():
     """check whether a person has requested to cross the street"""
@@ -379,7 +298,7 @@ def geneSchedule(penalty):
     traflight = torch.cat((vlight, plight),0)
     print('priority before increment: ', priority)
     priority += 1  # 时间片结束，所有状态优先级均上升
-    return traflight， light
+    return traflight
 
 
 
@@ -402,26 +321,13 @@ if __name__ == "__main__":
     #                  '--output-file', net],
     #                 stdout=sys.stdout, stderr=sys.stderr)
 
-    # generate the vehicles for this simulation
-    randomTrips.main(randomTrips.get_options([
-        '--net-file', net,
-        '--output-trip-file', 'std_crossroad.rou.xml',
-        # '--seed', '42',  # make runs reproducible
-        '--end', '60',
-        # '--prefix', 'ped',
-        # prevent trips that start and end on the same edge
-        '--min-distance', '1',
-        '--trip-attributes', 'departPos="random" arrivalPos="random"',
-        '--binomial', '3',
-        '--period', '0.8']))
-
     # generate the pedestrians for this simulation
     randomTrips.main(randomTrips.get_options([
         '--net-file', net,
         '--output-trip-file', 'std_crossroad.ped.xml',
-        # '--seed', '42',  # make runs reproducible
+        '--seed', '42',  # make runs reproducible
         '--pedestrians',
-        '--end', '60',
+        '--end', '30',
         '--prefix', 'ped',
         # prevent trips that start and end on the same edge
         '--min-distance', '1',
@@ -432,7 +338,7 @@ if __name__ == "__main__":
     # this is the normal way of using traci. sumo is started as a
     # subprocess and then the python script connects and runs
     # traci.start([sumoBinary, '-c', os.path.join('data', 'std_crossroad.sumocfg')])
-    traci.start([sumoBinary, '-c', os.path.join('std_crossroad.sumocfg'), '--tripinfo-output', 'tripinfo.xml'])
+    traci.start([sumoBinary, '-c', os.path.join('std_crossroad.sumocfg'), '--tripinfo-output', 'tripinfo_default.xml'])
     run()
     TotalWaitingTime=0
     TotalWaitingTime=totalWaiting()
