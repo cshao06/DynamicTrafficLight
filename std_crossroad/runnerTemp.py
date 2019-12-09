@@ -259,6 +259,10 @@ def get_options():
     optParser = optparse.OptionParser()
     optParser.add_option("--nogui", action="store_true",
                          default=False, help="run the commandline version of sumo")
+    optParser.add_option("-d", "--default", action="store_true",
+                         default=False, help="Run the default fixed length traffic light")
+    optParser.add_option("-c", "--sumocfg", action="store",
+                         type="string", default="std_crossroad.sumocfg", dest="sumocfg", help="The sumocfg file")
     options, args = optParser.parse_args()
     return options
 
@@ -389,6 +393,16 @@ def geneSchedule(penalty):
     priority += 1  # 时间片结束，所有状态优先级均上升
     return traflight, light
 
+def run_default():
+    """execute the TraCI control loop"""
+    step = 0
+    # we start with phase 2 where EW has green
+    traci.trafficlight.setPhase("0", 2)
+    while traci.simulation.getMinExpectedNumber() > 0:
+        traci.simulationStep()
+        step += 1
+    traci.close()
+    sys.stdout.flush()
 
 
 # this is the main entry point of this script
@@ -403,14 +417,14 @@ if __name__ == "__main__":
     else:
         sumoBinary = checkBinary('sumo-gui')
 
-    # if options.sumocfg is None:
-    #     cfg_file = 'std_crossroad.sumocfg'
-    # else:
-    #     cfg_file = options.sumocfg
-    if len(sys.argv) == 2:
-        cfg_file = sys.argv[1]
-    else:
+    if options.sumocfg is None:
         cfg_file = 'std_crossroad.sumocfg'
+    else:
+        cfg_file = options.sumocfg
+    # if len(sys.argv) == 2:
+    #     cfg_file = sys.argv[1]
+    # else:
+    #     cfg_file = 'std_crossroad.sumocfg'
 
     net = 'std_crossroad.net.xml'
     # build the multi-modal network from plain xml inputs
@@ -451,6 +465,9 @@ if __name__ == "__main__":
     # traci.start([sumoBinary, '-c', os.path.join('data', 'std_crossroad.sumocfg')])
     # traci.start([sumoBinary, '-c', os.path.join('std_crossroad.sumocfg'), '--tripinfo-output', 'tripinfo.xml'])
     traci.start([sumoBinary, '-c', os.path.join(cfg_file), '--tripinfo-output', 'tripinfo.xml'])
-    run()
+    if options.default:
+        run_default()
+    else:
+        run()
     # TotalWaitingTime=0
     # TotalWaitingTime=totalWaiting()
