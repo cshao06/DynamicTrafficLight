@@ -134,14 +134,14 @@ def run():
         #获取等待车辆
             vehicle=torch.zeros(12)
             for idx, det in enumerate(DETECTORS):
-                vehicle[idx] = (traci.lanearea.getLastStepHaltingNumber(det) > 0)
+                vehicle[idx] = (traci.lanearea.getLastStepVehicleNumber(det) > 0)
         #vehicle *= 100
             print('vehicle:', vehicle.int().data)
             traffic = torch.cat((vehicle, pedest*1), 0)
             index_t = [0, 1, 2, 12, 3, 4, 5, 13, 6, 7, 8, 14, 9, 10, 11, 15]
             traffic = traffic[index_t]
             print('traffic:', traffic.int().data)
-            penalty = traffic * penalty + traffic
+
             print('light:',light)
             light_shift = 1 - light
             penalty = penalty * light_shift + 1
@@ -149,7 +149,7 @@ def run():
             penal_lift = [penalty * 2, penalty  ** 2, torch.exp(penalty)]
 
             penalty_shift = penal_lift[0]
-
+            penalty_shift = traffic * penalty_shift + traffic
 
         #生成调度
             print('penalty:', penalty_shift)
