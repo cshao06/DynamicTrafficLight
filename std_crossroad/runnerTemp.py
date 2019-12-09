@@ -273,6 +273,8 @@ def get_options():
                          type="string", dest="veh_period", default="3.6", help="Vehicle period")
     optParser.add_option("-c", "--sumocfg", action="store",
                          type="string", default="std_crossroad.sumocfg", dest="sumocfg", help="The sumocfg file")
+    optParser.add_option("-o", "--tripinfo", action="store",
+                         type="string", default="tripinfo.xml", dest="tripinfo_xml", help="The tripinfo output file")
     options, args = optParser.parse_args()
     return options
 
@@ -427,10 +429,6 @@ if __name__ == "__main__":
     else:
         sumoBinary = checkBinary('sumo-gui')
 
-    if options.sumocfg is None:
-        cfg_file = 'std_crossroad.sumocfg'
-    else:
-        cfg_file = options.sumocfg
     # if len(sys.argv) == 2:
     #     cfg_file = sys.argv[1]
     # else:
@@ -474,7 +472,7 @@ if __name__ == "__main__":
     # subprocess and then the python script connects and runs
     # traci.start([sumoBinary, '-c', os.path.join('data', 'std_crossroad.sumocfg')])
     # traci.start([sumoBinary, '-c', os.path.join('std_crossroad.sumocfg'), '--tripinfo-output', 'tripinfo.xml'])
-    traci.start([sumoBinary, '-c', os.path.join(cfg_file), '--tripinfo-output', 'tripinfo.xml'])
+    traci.start([sumoBinary, '-c', os.path.join(options.sumocfg), '--tripinfo-output', options.tripinfo_xml])
     if options.default:
         run_default()
     else:
