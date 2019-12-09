@@ -106,5 +106,7 @@ venv.bak/
 # Project files
 *.out
 *.detout
-*/tripinfo.xml
-*/tripinfo_default.xml
+tripinfo.xml
+tripinfo_default.xml
+std_crossroad.rou.xml
+std_crossroad.ped.xml

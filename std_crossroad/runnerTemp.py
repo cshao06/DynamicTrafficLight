@@ -402,13 +402,26 @@ if __name__ == "__main__":
     #                  '--output-file', net],
     #                 stdout=sys.stdout, stderr=sys.stderr)
 
+    # generate the vehicles for this simulation
+    randomTrips.main(randomTrips.get_options([
+        '--net-file', net,
+        '--output-trip-file', 'std_crossroad.rou.xml',
+        # '--seed', '42',  # make runs reproducible
+        '--end', '60',
+        # '--prefix', 'ped',
+        # prevent trips that start and end on the same edge
+        '--min-distance', '1',
+        '--trip-attributes', 'departPos="random" arrivalPos="random"',
+        '--binomial', '3',
+        '--period', '0.8']))
+
     # generate the pedestrians for this simulation
     randomTrips.main(randomTrips.get_options([
         '--net-file', net,
         '--output-trip-file', 'std_crossroad.ped.xml',
-        '--seed', '42',  # make runs reproducible
+        # '--seed', '42',  # make runs reproducible
         '--pedestrians',
-        '--end', '30',
+        '--end', '60',
         '--prefix', 'ped',
         # prevent trips that start and end on the same edge
         '--min-distance', '1',
