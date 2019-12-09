@@ -126,7 +126,7 @@ def run():
             #else:
                 # otherwise try to keep green for EW
                 #traci.trafficlight.setPhase("0", 2)
-
+        light = torch.zeros(16)
         #获取等待行人
         peoWaitTime,pedest=checkWaitingPersons()
         print('pedest:', pedest.int().data)
@@ -141,11 +141,12 @@ def run():
         traffic = traffic[index_t]
         print('traffic:', traffic.int().data)
         penalty = traffic * penalty + traffic
+        penal_lift = [penalty[light < 1] * 2, penalty[light < 1] ** 2, torch.exp(penalty)]
         penalty_shift = penal_lift[0]
         #生成调度
         print('penalty:', penalty.int().data)
 
-        schedule， light=geneSchedule(penalty_shift)
+        schedule, light = geneSchedule(penalty_shift)
 
         #if step % 10 == 0:
         #    schedule = torch.LongTensor([0,0,0,1,2,1,0,0,0,1,2,1,2,0,2,0])
@@ -379,7 +380,7 @@ def geneSchedule(penalty):
     traflight = torch.cat((vlight, plight),0)
     print('priority before increment: ', priority)
     priority += 1  # 时间片结束，所有状态优先级均上升
-    return traflight， light
+    return traflight, light
 
 
 
